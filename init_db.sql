@@ -2,41 +2,49 @@
 CREATE DATABASE IF NOT EXISTS shop_db;
 USE shop_db;
 
--- 2. Schema Definition
+-- 2. Schema Definition with optimized data types
 CREATE TABLE IF NOT EXISTS sales (
     order_id INT PRIMARY KEY,
     product_name VARCHAR(100),
     category VARCHAR(100),
-    price DECIMAL(10, 2),
+    price DECIMAL(12, 2),
     quantity INT,
-    total_price DECIMAL(10, 2),
+    total_price DECIMAL(12, 2),
     branch VARCHAR(100),
     date DATE,
     year INT
 );
 
--- 3. DATA ANALYST QUERIES
+-- 3. DATA ANALYST QUERIES (Business Performance)
 
--- Ranking branches by total revenue (Which district sells more?)
+-- Sales performance by District (Branch)
 SELECT 
     branch, 
-    SUM(total_price) AS total_revenue,
-    COUNT(*) AS transactions_count
+    SUM(total_price) AS revenue,
+    COUNT(*) AS order_count,
+    ROUND(AVG(total_price), 2) AS avg_ticket
 FROM sales
 GROUP BY branch
-ORDER BY total_revenue DESC;
+ORDER BY revenue DESC;
 
--- Revenue by category (Food vs Drinks)
+-- Popularity by Category
 SELECT 
     category, 
-    SUM(total_price) AS revenue,
+    SUM(total_price) AS category_revenue,
     SUM(quantity) AS units_sold
 FROM sales
 GROUP BY category
-ORDER BY revenue DESC;
+ORDER BY category_revenue DESC;
 
--- Top 5 most expensive transactions
-SELECT order_id, product_name, total_price, branch
+-- Revenue dynamics by Year
+SELECT year, SUM(total_price) AS total_revenue
 FROM sales
-ORDER BY total_price DESC
-LIMIT 5;
+GROUP BY year
+ORDER BY year;
+
+-- Top 10 most profitable products
+SELECT product_name, SUM(total_price) AS total_value
+FROM sales
+GROUP BY product_name
+ORDER BY total_value DESC
+LIMIT 10;
